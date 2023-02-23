@@ -37,11 +37,47 @@ function ReqMod(model)
         Wait(0)
     end
 end
+function DeleteVeh()
+	local ped = PlayerPedId()
+    local veh = GetVehiclePedIsUsing(ped)
+    if veh ~= 0 then
+        SetEntityAsMissionEntity(veh, true, true)
+        DeleteVehicle(veh)
+    else
+        local pcoords = GetEntityCoords(ped)
+        local vehicles = GetGamePool('CVehicle')
+        for _, v in pairs(vehicles) do
+            if #(pcoords - GetEntityCoords(v)) <= 5.0 then
+                SetEntityAsMissionEntity(v, true, true)
+                DeleteVehicle(v)
+            end
+        end
+    end
+end
+function SpawnVeh(model)
+	local ped = PlayerPedId()
+    local hash = GetHashKey(vehName)
+    local veh = GetVehiclePedIsUsing(ped)
+    if not IsModelInCdimage(hash) then return end
+    RequestModel(hash)
+    while not HasModelLoaded(hash) do
+        Wait(0)
+    end
 
+    if IsPedInAnyVehicle(ped) then
+        DeleteVehicle(veh)
+    end
+
+    local vehicle = CreateVehicle(hash, GetEntityCoords(ped), GetEntityHeading(ped), true, false)
+    TaskWarpPedIntoVehicle(ped, vehicle, -1)
+    SetVehicleFuelLevel(vehicle, 100.0)
+    SetVehicleDirtLevel(vehicle, 0.0)
+    SetModelAsNoLongerNeeded(hash)
+    TriggerEvent("vehiclekeys:client:SetOwner", QBCore.Functions.GetPlate(vehicle))
+end
 local function prepSpeedTest(model)
-    TriggerEvent("QBCore:Command:DeleteVehicle")
-
-    TriggerEvent("QBCore:Command:SpawnVehicle", model)
+    DeleteVeh()
+    SpawnVeh(model)
     local x = 0
     while GetVehiclePedIsIn(PlayerPedId(), false) == 0 do
         Citizen.Wait(100)

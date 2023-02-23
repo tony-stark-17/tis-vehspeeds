@@ -73,7 +73,6 @@ function SpawnVeh(model)
     SetVehicleFuelLevel(vehicle, 100.0)
     SetVehicleDirtLevel(vehicle, 0.0)
     SetModelAsNoLongerNeeded(hash)
-    TriggerEvent("vehiclekeys:client:SetOwner", QBCore.Functions.GetPlate(vehicle))
 end
 local function prepSpeedTest(model)
     DeleteVeh()
